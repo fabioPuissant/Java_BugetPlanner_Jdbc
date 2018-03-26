@@ -2,7 +2,6 @@
 # Opgave algemene oefening
 ### BudgetPlanner
 
-
 De bedoeling van deze oefening is het uitwerken van een reële case waarin alle concepten van het opleidingsonderdeel Programming Advanced Java in voorkomen.
 
 Deze concepten zijn:
