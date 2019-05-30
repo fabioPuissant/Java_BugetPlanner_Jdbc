@@ -1,4 +1,7 @@
 package be.pxl.student.dao;
 
-public class IDao {
+import java.sql.SQLException;
+
+public interface IDao {
+    void commit() throws SQLException;
 }

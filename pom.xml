@@ -4,7 +4,7 @@
 
 	<groupId>be.pxl.student</groupId>
 	<artifactId>BudgetPlanner</artifactId>
-	<version>SNAPSHOT-1.0</version>
+	<version>jdbc.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>BudgetPlanner</name>
@@ -53,6 +53,14 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.25</version>
 		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.41</version>
+			<scope>runtime</scope>
+		</dependency>
+
 
 		<dependency>
 			<groupId>junit</groupId>

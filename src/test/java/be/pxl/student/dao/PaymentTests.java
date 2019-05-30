@@ -13,8 +13,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 
-public class PaymentTest {
+public class PaymentTests {
     private static final String url = "jdbc:mysql://192.168.33.22/StudentDBTest";
     private static final String user = "student";
     private static final String password = "root";
@@ -65,7 +66,7 @@ public class PaymentTest {
     @Test
     public void getById_shouldReturnPaymentWithGivenId() throws PaymentException {
         //Arrange
-        Payment expected = getTestPayment(1);
+        Payment expected = dao.addPayment(getTestPayment(1));
         Assert.assertNotNull(expected);
 
         //Act
@@ -77,26 +78,95 @@ public class PaymentTest {
     }
 
     @Test
-    public void getPaymentsByAccountId_shouldReturnPaymentsWithGivenAccountId(){
+    public void getPaymentsByAccountId_shouldReturnPaymentsWithGivenAccountId() throws PaymentException {
+        //Arrange
         Account account = getTestingAccount();
-        seedMultiplePayments(account.getId());
+        int size = seedMultiplePayments(account.getId());
+
+        //Act
+        List<Payment> paymentsOfAccount = dao.getPaymentsByAccountId(account.getId());
+
+        //Assert
+        Assert.assertNotNull(paymentsOfAccount);
+        Assert.assertEquals(paymentsOfAccount.size(), size);
+    }
+
+    @Test
+    public void getPaymentsOfLabel_shouldReturnPaymentsWithGivenLabelId() throws PaymentException {
+        //Arrange
+        Label label = getTestingLabel();
+        int size = seedMultiplePayments(label.getId());
+
+        //Act
+        List<Payment> paymentsOfLabel = dao.getPaymentsOfLabel(label.getId());
+
+        //Assert
+        Assert.assertNotNull(paymentsOfLabel);
+        Assert.assertEquals(paymentsOfLabel.size(), size);
+    }
+
+    @Test
+    public void addLabelToPayment_shouldAddLabelToPayment() throws PaymentException {
+        //Arrange
+        Payment payment = dao.addPayment(getTestPayment(1));
+        Label label = getTestingLabel();
+        int expectedRowsUpdated = 1;
+
+        Assert.assertNotNull(payment);
+        Assert.assertNotEquals(payment.getId(), 0);
+
+        //Act
+        int actualRowsUpdated = dao.addLabelToPayment(payment, label);
+        Payment result = dao.getById(payment.getId());
+
+        //Assert
+        Assert.assertEquals(expectedRowsUpdated, actualRowsUpdated);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getLabelId(), label.getId());
+    }
+
+    @Test
+    public void addLabelToAllPaymentOfAccount() throws PaymentException {
+        //Arrange
+        Account account = getTestingAccount();
+        int expectedUpdatedRows = seedMultiplePayments(account.getId());
+        Label label = getTestingLabel();
+
+        //Act
+        int actualUpdatedRows = dao.addLabelToAllPaymentOfAccount(account, label);
+        List<Payment> paymentsOfAccount = dao.getPaymentsByAccountId(account.getId());
+
+        //Assert
+        Assert.assertEquals(expectedUpdatedRows, actualUpdatedRows);
+        Assert.assertNotNull(paymentsOfAccount);
+        paymentsOfAccount.forEach(payment -> {
+            Assert.assertEquals(payment.getLabelId(), label.getId());
+        });
+    }
+
+    private int seedMultiplePayments(int testingId) throws PaymentException {
+        dao.addPayment(getTestPayment(testingId));
+        dao.addPayment(getTestPayment(testingId));
+        dao.addPayment(getTestPayment(testingId));
+
+        return 3;
     }
 
     private Label getTestingLabel() {
-        return new Label(1, "test", "test");
+        return new Label(new Random().nextInt(Integer.MAX_VALUE), "test", "test");
     }
 
     private Account getTestingAccount() {
         return new Account(1, "test", "test", "test");
     }
 
-    private Payment getTestPayment(int accountId){
+    private Payment getTestPayment(int testingId) {
         return new Payment(LocalDate.now(),
                 0F,
                 "test",
                 "test",
-                accountId,
+                testingId,
                 0,
-                0);
+                testingId);
     }
 }
